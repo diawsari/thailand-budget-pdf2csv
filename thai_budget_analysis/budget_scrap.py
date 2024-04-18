@@ -181,7 +181,7 @@ class BudgetSca:
         grouped_result = pd.DataFrame()  # DataFrame to hold all grouped results
 
         # Define the columns to include in the group by operation
-        sca_cross_col = ['Word', 'ITEM_ID', 'REF_DOC' ,'REF_PAGE_NO', groupby, 'BUDGET_YEAR', 'FISCAL_YEAR', 'OBLIGED', 'Source_Column', 'source_str']
+        sca_cross_col = ['Word', 'REF_DOC' ,'REF_PAGE_NO', groupby, 'BUDGET_YEAR', 'FISCAL_YEAR', 'OBLIGED?', 'Source_Column', 'source_str']
         
         # Columns that are processed
         processed_columns = [
@@ -230,7 +230,7 @@ class BudgetSca:
             grouped_result = pd.concat([grouped_result, grouped], ignore_index=True) # Concatenate the grouped results each processed column
 
         # Filter the grouped results to only include rows where 'OBLIGED' is True and 'FISCAL_YEAR' is 2024, or 'OBLIGED' is False
-        grouped_result = grouped_result[((grouped_result['OBLIGED'] == True) & (grouped_result['FISCAL_YEAR'] == cfg_fy)) | (grouped_result['OBLIGED'] == False)]
+        grouped_result = grouped_result[((grouped_result['OBLIGED?'] == True) & (grouped_result['FISCAL_YEAR'] == cfg_fy)) | (grouped_result['OBLIGED?'] == False)]
         # Filter out rows where 'Word' is '0'
         grouped_result = grouped_result[grouped_result['Word'] != '0']
 
