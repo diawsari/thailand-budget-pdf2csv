@@ -3,7 +3,6 @@ import re
 import os
 import logging
 import json
-import unicodedata
 import plotly.express as px
 
 # Configure logging to provide info and error messages.
