@@ -78,17 +78,6 @@ class BudgetCal:
             return bu.strip()
         return bu
 
-    def tokenize_words(self, text):
-        """
-        Tokenize Thai text and filter out stopwords and single-character words.
-        Args:
-            text (str): The text to tokenize.
-        Returns:
-            list: A list of valid words after tokenization and filtering.
-        """
-        words = word_tokenize(text, keep_whitespace=False)
-        return [word for word in words if word not in thai_stopwords() and len(word) > 1]
-
     def process_field(self, field):
         """
         Process a text field to extract common words.
