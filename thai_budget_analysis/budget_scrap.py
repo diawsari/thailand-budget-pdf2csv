@@ -3,6 +3,7 @@ import re
 import os
 import time
 import logging
+import pythainlp
 from pythainlp import word_tokenize
 from pythainlp.corpus import thai_stopwords
 import json
@@ -14,6 +15,7 @@ from concurrent.futures import ThreadPoolExecutor
 import threading
 import ast
 import numpy as np
+from openpyxl.workbook import Workbook
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
@@ -40,7 +42,7 @@ class BudgetSca:
             bu = re.sub(r'\s+', ' ', bu).strip()
         return bu
 
-    def tokenize_words(self, text):
+    def tokenize_words(self, text, engine = 'longest'):
         """
         Tokenize the given text by removing whitespace and stopwords, and keeping significant words only.
 
@@ -50,8 +52,10 @@ class BudgetSca:
         Returns:
             list: A list of significant words after tokenization.
         """
+        words = pythainlp.word_tokenize(text, engine=engine, keep_whitespace=False)
+        stopwords = pythainlp.corpus.thai_stopwords()
         words = word_tokenize(text, keep_whitespace=False)
-        result = [word for word in words if word not in thai_stopwords() and len(word) > 1]
+        result = [word for word in words if word not in stopwords and len(word) > 1]
         return result
 
     def process_field(self, field):
@@ -248,3 +252,6 @@ if __name__ == '__main__':
         scrap_prepared_df = bg_sca.project_scrap_get(merged_df)
         transformed_df = bg_sca.df_transform(scrap_prepared_df, group_by, config['fy'])
         transformed_df.to_csv('transformed_df.csv', index=False)
+        transformed_df.to_excel('transformed_df.xlsx', index=False)
+        logging.info("Data transformation completed successfully.")
+        
