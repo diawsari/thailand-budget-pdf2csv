@@ -138,7 +138,7 @@ class BudgetSca:
         bar.finish()  # Clean up after the bar
         return df
     
-    def project_scrap_get(self, df):
+    def keyword_get(self, df):
         """
         Process the given DataFrame to clean and transform the data.
 
@@ -155,7 +155,7 @@ class BudgetSca:
         df.fillna(int(0), inplace=True) # Fill NaN values with 0
 
         # grouped.dropna(subset=columns, how='all', inplace=True)
-        logging.info(f"project_scrap_get executed in {time.time() - start_time:.2f} seconds")
+        logging.info(f"keyword_get executed in {time.time() - start_time:.2f} seconds")
         return df
 
     def df_transform(self, df, groupby, cfg_fy):
@@ -163,7 +163,7 @@ class BudgetSca:
         Transforms the dataframe by grouping and aggregating data based on the MINISTRY/BUDGETARY_UNIT columns.
 
         Parameters:
-            df (pandas.DataFrame): The input dataframe to be transformed. normally the output of project_scrap_get.
+            df (pandas.DataFrame): The input dataframe to be transformed. normally the output of keyword_get.
             groupby (str): The column name to group the data by. the MINISTRY/BUDGETARY_UNIT column.
             cfg_fy (int): The fiscal year to filter the data. current fiscal year to filter out obliged.
 

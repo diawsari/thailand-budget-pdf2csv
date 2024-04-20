@@ -46,7 +46,7 @@ if __name__ == '__main__':
     group_by = config.get("group_by")
     merged_df = bg_cal.merge_dataframes(file_generator, file_pattern)
     if merged_df is not None:
-        scrap_prepared_df = bg_sca.project_scrap_get(merged_df)
+        scrap_prepared_df = bg_sca.keyword_get(merged_df)
         transformed_df = bg_sca.df_transform(scrap_prepared_df, group_by, config['fy'])
         save_df_to_excel_with_progress(transformed_df, '.\\Output\\transformed_df.xlsx')
         logging.info("Data transformation completed successfully.")
