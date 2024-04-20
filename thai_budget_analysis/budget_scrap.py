@@ -6,23 +6,22 @@ import logging
 import pythainlp
 from pythainlp import word_tokenize
 from pythainlp.corpus import thai_stopwords
-import json
 import unicodedata
 from collections import Counter
-from budget_amount import BudgetCal  # Ensure BudgetCal class is defined in budget_amount.py
 from progress.bar import Bar
 from concurrent.futures import ThreadPoolExecutor
 import threading
 import ast
 import numpy as np
-from openpyxl.workbook import Workbook
+import tqdm
 
 # Set up logging
 logging.basicConfig(level=logging.INFO, format='%(asctime)s - %(levelname)s - %(message)s')
 
 class BudgetSca:
-    def __init__(self, config):
+    def __init__(self, config, engine):
         self.config = config
+        self.engine = engine
         logging.info("Configuration loaded successfully.")
 
     def clean_bu(self, bu):
@@ -42,7 +41,7 @@ class BudgetSca:
             bu = re.sub(r'\s+', ' ', bu).strip()
         return bu
 
-    def tokenize_words(self, text, engine = 'longest'):
+    def tokenize_words(self, text):
         """
         Tokenize the given text by removing whitespace and stopwords, and keeping significant words only.
 
@@ -52,10 +51,10 @@ class BudgetSca:
         Returns:
             list: A list of significant words after tokenization.
         """
-        words = pythainlp.word_tokenize(text, engine=engine, keep_whitespace=False)
+        words = pythainlp.word_tokenize(text, engine=self.engine, keep_whitespace=False)
         stopwords = pythainlp.corpus.thai_stopwords()
         words = word_tokenize(text, keep_whitespace=False)
-        result = [word for word in words if word not in stopwords and len(word) > 1]
+        result = [word for word in words if word not in stopwords and len(word) > 2]
         return result
 
     def process_field(self, field):
@@ -185,7 +184,7 @@ class BudgetSca:
         grouped_result = pd.DataFrame()  # DataFrame to hold all grouped results
 
         # Define the columns to include in the group by operation
-        sca_cross_col = ['Word', 'REF_DOC' ,'REF_PAGE_NO', groupby, 'BUDGET_YEAR', 'FISCAL_YEAR', 'OBLIGED?', 'Source_Column', 'source_str']
+        sca_cross_col = ['Word', 'REF_DOC' ,'REF_PAGE_NO', groupby, 'BUDGET_YEAR', 'FISCAL_YEAR', 'OBLIGED?', 'source_column', 'source_str']
         
         # Columns that are processed
         processed_columns = [
@@ -208,50 +207,38 @@ class BudgetSca:
 
         # Preprocessing steps
         df['AMOUNT'] = df['AMOUNT'].astype(str)
-        df['AMOUNT'] = df['AMOUNT'].str.replace(',', '').astype(float) / 1e6 # Convert to millions
-        df['FISCAL_YEAR'] = df['FISCAL_YEAR'].astype(int) # Convert to integer
-        df['Source_Column'] = None # Add this line to create the 'Source_Column' column
-        df['source_str'] = None  # Add this line to create the 'source_str' column
+        df['AMOUNT'] = df['AMOUNT'].str.replace(',', '').astype(float) / 1e6
+        df['OBLIGED?'] = df['OBLIGED?'].astype(bool)
+        df['FISCAL_YEAR'] = df['FISCAL_YEAR'].astype(int)
+        df['REF_PAGE_NO'] = df['REF_PAGE_NO'].astype(str)
+        df['source_column'] = None
+        df['source_str'] = None
         
         # Explode the processed columns
-        for col in processed_columns:
+        for col in tqdm(processed_columns, desc="Processing columns"):
             df[col] = df[col].apply(safe_literal_eval)
             df_exploded = df.explode(col)
 
-            df_exploded['Source_Column'] = col
-            df_exploded['Word'] = df_exploded[col]
+            df_exploded['source_column'] = col
+            df_exploded['Word'] = df_exploded[col].astype(str)
             if col in column_mapping:
                 df_exploded['source_str'] = np.where(df_exploded[col] != 0, df_exploded[column_mapping[col]], np.nan)
             else:
                 df_exploded['source_str'] = np.nan
 
             # Filter and group operations
-            grouped = df_exploded.groupby(sca_cross_col).agg(
+            grouped = df_exploded.sort_values(by=sca_cross_col).groupby(sca_cross_col).agg(
                 frequency=('AMOUNT', 'size'),
                 total_amount=('AMOUNT', 'sum')
             ).reset_index()
 
             grouped_result = pd.concat([grouped_result, grouped], ignore_index=True) # Concatenate the grouped results each processed column
 
-        # Filter the grouped results to only include rows where 'OBLIGED' is True and 'FISCAL_YEAR' is 2024, or 'OBLIGED' is False
-        grouped_result = grouped_result[((grouped_result['OBLIGED?'] == True) & (grouped_result['FISCAL_YEAR'] == cfg_fy)) | (grouped_result['OBLIGED?'] == False)]
-        # Filter out rows where 'Word' is '0'
-        grouped_result = grouped_result[grouped_result['Word'] != '0']
+        # Filter the grouped results
+        grouped_result.query("((`OBLIGED?` == True) & (FISCAL_YEAR == @cfg_fy)) | (`OBLIGED?` == False)", inplace=True)
+        grouped_result.query("Word != '0'", inplace=True)
 
         return grouped_result
-if __name__ == '__main__':
-    with open('config.json', 'r', encoding='utf-8') as f:
-        config = json.load(f)
-    bg_cal = BudgetCal(config)
-    bg_sca = BudgetSca(config)
-    file_generator = bg_cal.read_csv_files(config['dir_path'])
-    file_pattern = config.get("file_pattern", r"(\d+)_Budget_red_stripe.csv")
-    group_by = config.get("group_by")
-    merged_df = bg_cal.merge_dataframes(file_generator, file_pattern)
-    if merged_df is not None:
-        scrap_prepared_df = bg_sca.project_scrap_get(merged_df)
-        transformed_df = bg_sca.df_transform(scrap_prepared_df, group_by, config['fy'])
-        transformed_df.to_csv('transformed_df.csv', index=False)
-        transformed_df.to_excel('transformed_df.xlsx', index=False)
-        logging.info("Data transformation completed successfully.")
+
+
         
