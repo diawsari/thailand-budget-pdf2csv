@@ -24,7 +24,7 @@ You can download the results and see the source code in each approach under `./c
 
 #### Thailand budget analysis
 BudgetSca class in the budget_scrap.py script, which is responsible for cleaning and transforming budget data (from pdf2csv tool) to get a beneficial keyword being used in the red stripe document. For result please see link below:
-- LINK : [Google Drive](https://docs.google.com/spreadsheets/d/1ZrcbwR_JOGnosAiauetbfAd62-ihXDbY/edit?usp=drive_link&ouid=113989464000034903218&rtpof=true&sd=true)
+- **thai_budget_analysis** [Google Drive](https://docs.google.com/spreadsheets/d/1ZrcbwR_JOGnosAiauetbfAd62-ihXDbY/edit?usp=drive_link&ouid=113989464000034903218&rtpof=true&sd=true)
 
 ## Translations
 
