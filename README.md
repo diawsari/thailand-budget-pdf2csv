@@ -22,15 +22,15 @@ You can download the results and see the source code in each approach under `./c
 
 - **napatswift-coordintes:** [Google Drive](https://drive.google.com/folderview?id=1O-A5ZIqXfQzbdfOh1UO75cnKKPnfqLa8) folder.
 
+#### Thailand budget analysis
+- BudgetSca class in the budget_scrap.py script, which is responsible for cleaning and transforming budget data (from pdf2csv tool) to get a beneficial keyword being used in the red stripe document. For result please see link below:
+- LINK : [Google Drive](https://docs.google.com/spreadsheets/d/1ZrcbwR_JOGnosAiauetbfAd62-ihXDbY/edit?usp=drive_link&ouid=113989464000034903218&rtpof=true&sd=true)
+
 ## Translations
 
 #### English version
 
 - **napatswift-coordintes** (partially translated using Google Translation API): [Google Sheet](https://docs.google.com/spreadsheets/d/1rKR1kLuSDssT0_xLpGE_oRm2tPD5ZRhzErWq-8UzH6A/edit#gid=1374765115), see [@asiripanich](https://github.com/asiripanich)'s [repo](https://github.com/asiripanich/translate-thaigov-budget) for code.
-
-#### Thailand budget analysis
-- BudgetSca class in the budget_scrap.py script, which is responsible for cleaning and transforming budget data (from pdf2csv tool) to get a beneficial keyword being used in the red stripe document. For result please see link below:
-- LINK : [Google Drive](https://docs.google.com/spreadsheets/d/1ZrcbwR_JOGnosAiauetbfAd62-ihXDbY/edit?usp=drive_link&ouid=113989464000034903218&rtpof=true&sd=true)
 
 ## Let's Code!
 
